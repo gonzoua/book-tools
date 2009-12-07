@@ -22,50 +22,30 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-package FB2::Book::Description::Author;
-use Moose;
+package FB2::Book::Binary;
 
-has [qw/first_name middle_name last_name nickname home_page email id/] =>
-    (isa => 'Str', is => 'rw');
+use Moose;
+use MIME::Base64;
+
+has [qw/content_type data id/] => ( isa => 'Str', is => 'rw' );
 
 sub load
 {
     my ($self, $node) = @_;
 
-    my @nodes = $node->findnodes('first-name');
+    my @nodes = $node->findnodes('@id');
     if (@nodes) {
-        $self->first_name($nodes[0]->string_value());
+        $self->id($nodes[0]->getValue());
     }
 
-    @nodes = $node->findnodes('middle-name');
+    @nodes = $node->findnodes('@content-type');
     if (@nodes) {
-        $self->middle_name($nodes[0]->string_value());
+        $self->content_type($nodes[0]->getValue());
     }
 
-    @nodes = $node->findnodes('last-name');
-    if (@nodes) {
-        $self->last_name($nodes[0]->string_value());
-    }
-
-    @nodes = $node->findnodes('nickname');
-    if (@nodes) {
-        $self->nickname($nodes[0]->string_value());
-    }
-
-    @nodes = $node->findnodes('home-page');
-    if (@nodes) {
-        $self->home_page($nodes[0]->string_value());
-    }
-
-    @nodes = $node->findnodes('email');
-    if (@nodes) {
-        $self->email($nodes[0]->string_value());
-    }
-
-    @nodes = $node->findnodes('id');
-    if (@nodes) {
-        $self->id($nodes[0]->string_value());
-    }
+    # XXX: eval this, it might fail with invalid data
+    my $decoded = MIME::Base64::decode($node->string_value());
+    $self->data($decoded)
 }
 
 1;

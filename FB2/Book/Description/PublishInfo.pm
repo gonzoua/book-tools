@@ -22,50 +22,51 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-package FB2::Book::Description::Author;
+package FB2::Book::Description::PublishInfo;
 use Moose;
 
-has [qw/first_name middle_name last_name nickname home_page email id/] =>
-    (isa => 'Str', is => 'rw');
+has [qw/book-name publisher city year isbn/] => (isa => 'Str', is => 'rw');
+has sequences => (isa => 'ArrayRef', is => 'ro', default => sub { [] });
 
 sub load
 {
     my ($self, $node) = @_;
 
-    my @nodes = $node->findnodes('first-name');
+    my @nodes = $node->findnodes('book-name');
     if (@nodes) {
-        $self->first_name($nodes[0]->string_value());
+        $self->book_name($nodes[0]->string_value());
     }
 
-    @nodes = $node->findnodes('middle-name');
+    @nodes = $node->findnodes('publisher');
     if (@nodes) {
-        $self->middle_name($nodes[0]->string_value());
+        $self->publisher($nodes[0]->string_value());
     }
 
-    @nodes = $node->findnodes('last-name');
+    @nodes = $node->findnodes('city');
     if (@nodes) {
-        $self->last_name($nodes[0]->string_value());
+        $self->city($nodes[0]->string_value());
     }
 
-    @nodes = $node->findnodes('nickname');
+    @nodes = $node->findnodes('year');
     if (@nodes) {
-        $self->nickname($nodes[0]->string_value());
+        $self->year($nodes[0]->string_value());
     }
 
-    @nodes = $node->findnodes('home-page');
+    @nodes = $node->findnodes('isbn');
     if (@nodes) {
-        $self->home_page($nodes[0]->string_value());
+        $self->isbn($nodes[0]->string_value());
     }
 
-    @nodes = $node->findnodes('email');
-    if (@nodes) {
-        $self->email($nodes[0]->string_value());
-    }
-
-    @nodes = $node->findnodes('id');
-    if (@nodes) {
-        $self->id($nodes[0]->string_value());
+    @nodes = $node->findnodes('sequence');
+    foreach my $node (@nodes) {
+        my $seq = FB2::Book::Description::Sequence->new();
+        $seq->load($node);
+        $self->add_sequence($seq);
     }
 }
 
-1;
+sub add_sequence
+{
+    my ($self, $seq) = @_;
+    push @{$self->sequnces()}, $seq;
+}
