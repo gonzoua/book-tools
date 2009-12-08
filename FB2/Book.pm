@@ -36,7 +36,7 @@ has description => ( isa => 'Object', is => 'rw',
                         handles => {
                             title => 'book_title',
                             lang => 'lang',
-                            author => 'author'
+                            authors => 'authors'
                         },
                    );
 
@@ -78,6 +78,7 @@ sub load
 
 
     # XXX: handle stylesheet?
+    return 1;
 }
 
 1;

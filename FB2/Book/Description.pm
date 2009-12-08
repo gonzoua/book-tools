@@ -27,13 +27,37 @@ package FB2::Book::Description;
 use Moose;
 use FB2::Book::Description::TitleInfo;
 
-has 'title_info' =>  (isa => 'Object', is => 'rw', 
-                        handles => {
-                            book_title => 'book_title'
-                        },
-                     );
-has 'src_title_info' => (isa => 'Object', is => 'rw');
-has 'publish_info' => (isa => 'Object', is => 'rw');
+has 'title_info' =>  (
+    isa     => 'Object', 
+    is      => 'rw', 
+    handles => {
+        book_title  => 'book_title',
+        authors     => 'all_authors',
+        translators => 'all_translators',
+        genres      => 'all_genres',
+    },
+);
+
+# TODO: more handlers
+has 'src_title_info' =>  (
+    isa     => 'Object', 
+    is      => 'rw', 
+    handles => {
+        src_book_title => 'book_title',
+    },
+);
+
+has 'publish_info' =>  (
+    isa     => 'Object', 
+    is      => 'rw', 
+    handles => {
+        publication_title   => 'book_name',
+        publisher           => 'publisher',
+        publication_city    => 'city',
+        publication_year    => 'year',
+        isbn                => 'isbn',
+    },
+);
 
 sub load
 {

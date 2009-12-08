@@ -27,11 +27,50 @@ use Moose;
 use FB2::Book::Description::Author;
 use FB2::Book::Description::Genre;
 
-has [qw/book_title keywords date lang src_lang/] => (isa => 'Str', is => 'rw');
-has genres => (isa => 'ArrayRef', is => 'rw', default => sub { [] });
-has authors => (isa => 'ArrayRef', is => 'rw', default => sub { [] });
-has translators => (isa => 'ArrayRef', is => 'rw', default => sub { [] });
-has sequences => (isa => 'ArrayRef', is => 'rw', default => sub { [] });
+has [qw/book_title keywords date lang src_lang/] => (
+    isa     => 'Str',
+    is      => 'rw'
+);
+
+has genres => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'rw',
+    default => sub { [] },
+    handles => {
+       all_genres   => 'elements',
+    },
+);
+
+has authors => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'rw',
+    default => sub { [] },
+    handles => {
+       all_authors   => 'elements' 
+    }
+);
+
+has translators => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'rw',
+    default => sub { [] },
+    handles => {
+       all_translators   => 'elements' 
+    }
+);
+
+has sequences => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'rw',
+    default => sub { [] },
+    handles => {
+       all_sequences   => 'elements' 
+    }
+);
 
 sub load
 {
