@@ -25,8 +25,10 @@
 package FB2::Book::Description::Author;
 use Moose;
 
-has [qw/first_name middle_name last_name nickname home_page email id/] =>
-    (isa => 'Str', is => 'rw');
+has [qw/first_name middle_name last_name nickname home_page email id/] => (
+    isa     => 'Str',
+    is      => 'rw'
+);
 
 sub load
 {
@@ -66,6 +68,24 @@ sub load
     if (@nodes) {
         $self->id($nodes[0]->string_value());
     }
+}
+
+sub to_str
+{
+    my $self = shift;
+    my $name = $self->first_name;
+    $name .= ' ' . $self->middle_name if defined($self->middle_name);
+    if ($name ne '') {
+        $name .= ' "' . $self->nickname . '"' 
+            if defined($self->nickname);
+    }
+    else {
+        $name = $self->nickname if defined($self->nickname);
+    }
+
+    $name .= ' ' . $self->last_name if defined($self->last_name);
+
+    return $name;
 }
 
 1;
