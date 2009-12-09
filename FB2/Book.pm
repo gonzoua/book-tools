@@ -32,16 +32,35 @@ use FB2::Book::Description;
 use FB2::Book::Binary;
 use FB2::Book::Body;
 
-has description => ( isa => 'Object', is => 'rw', 
-                        handles => {
-                            title => 'book_title',
-                            lang => 'lang',
-                            authors => 'authors'
-                        },
-                   );
+has description => ( 
+    isa     => 'Object',
+    is      => 'rw', 
+    handles => {
+        title   => 'book_title',
+        lang    => 'lang',
+        authors => 'authors'
+    },
+);
 
-has bodies => (isa => 'ArrayRef', is => 'ro', default => sub { [] });
-has binaries => (isa => 'ArrayRef', is => 'ro', default => sub { [] });
+has bodies => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'ro',
+    default => sub { [] },
+    handles => {
+        all_bodies      => 'elements',
+    },
+);
+
+has binaries => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'ro',
+    default => sub { [] },
+    handles => {
+        all_binaries    => 'elements',
+    },
+);
 
 sub load
 {
@@ -72,10 +91,8 @@ sub load
     foreach my $node (@nodes) {
         my $bin = FB2::Book::Body->new();
         $bin->load($node);
-        push @{$self->binaries()}, $bin;
+        push @{$self->bodies()}, $bin;
     }
-
-
 
     # XXX: handle stylesheet?
     return 1;
