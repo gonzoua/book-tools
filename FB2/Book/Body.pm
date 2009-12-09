@@ -29,8 +29,11 @@ has name => ( isa => 'Str', is => 'rw' );
 has title => ( isa => 'Str', is => 'rw' );
 has epigraph => ( isa => 'Str', is => 'rw' );
 has image => ( isa => 'Str', is => 'rw' );
-has sections => ( isa => 'ArrayRef', is => 'ro',
-                    default => sub { [] });
+has sections => ( 
+    isa     => 'ArrayRef',
+    is      => 'ro',
+    default => sub { [] },
+);
 
 sub load
 {
@@ -51,11 +54,10 @@ sub load
     }
 
     # TODO: Add image support
-
     @nodes = $node->findnodes("section");
-    if (@nodes) {
+    foreach my $n (@nodes) {
         push @{$self->sections()}, 
-            XML::XPath::XMLParser::as_string($nodes[0]);
+            XML::XPath::XMLParser::as_string($n);
     }
 }
 
