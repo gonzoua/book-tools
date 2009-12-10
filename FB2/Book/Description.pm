@@ -35,6 +35,7 @@ has 'title_info' =>  (
         authors     => 'all_authors',
         translators => 'all_translators',
         genres      => 'all_genres',
+        lang        => 'lang',
     },
 );
 
