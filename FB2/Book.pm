@@ -25,8 +25,8 @@
 package FB2::Book;
 
 use Moose;
-use XML::XPath;
-use XML::XPath::XMLParser;
+use XML::DOM;
+use XML::DOM::XPath;
 
 use FB2::Book::Description;
 use FB2::Book::Binary;
@@ -65,7 +65,8 @@ has binaries => (
 sub load
 {
     my ($self, $file) = @_;
-    my $xp = XML::XPath->new(filename => $file);
+    my $parser = XML::DOM::Parser->new();
+    my $xp = $parser->parsefile($file);
 
     my @nodes = $xp->findnodes('/FictionBook/description'); 
     if (@nodes != 1) {
