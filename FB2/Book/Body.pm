@@ -24,11 +24,12 @@
 
 package FB2::Book::Body;
 use Moose;
+use FB2::Book::Body::Section;
 
 has name => ( isa => 'Str', is => 'rw' );
-has title => ( isa => 'Str', is => 'rw' );
-has epigraph => ( isa => 'Str', is => 'rw' );
-has image => ( isa => 'Str', is => 'rw' );
+has title => ( isa => 'Ref', is => 'rw' );
+has epigraph => ( isa => 'Ref', is => 'rw' );
+has image => ( isa => 'Ref', is => 'rw' );
 has sections => ( 
     isa     => 'ArrayRef',
     is      => 'ro',
@@ -46,18 +47,19 @@ sub load
 
     my @nodes = $node->findnodes("title");
     if (@nodes) {
-        $self->title(XML::XPath::XMLParser::as_string($nodes[0]));
+        $self->title($nodes[0]);
     }
     @nodes = $node->findnodes("epigraph");
     if (@nodes) {
-        $self->epigraph(XML::XPath::XMLParser::as_string($nodes[0]));
+        $self->epigraph($nodes[0]);
     }
 
-    # TODO: Add image support
+    # TODO: add image support
     @nodes = $node->findnodes("section");
     foreach my $n (@nodes) {
-        push @{$self->sections()}, 
-            XML::XPath::XMLParser::as_string($n);
+        my $s = FB2::Book::Body::Section->new();
+        $s->load($n);
+        push @{$self->sections}, $s;
     }
 }
 
