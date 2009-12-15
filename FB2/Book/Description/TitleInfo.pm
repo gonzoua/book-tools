@@ -72,6 +72,16 @@ has sequences => (
     }
 );
 
+has cover_images => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[Object]',
+    is      => 'rw',
+    default => sub { [] },
+    handles => {
+       all_images   => 'elements' 
+    }
+);
+
 sub load
 {
     my ($self, $node) = @_;
@@ -131,7 +141,21 @@ sub load
         $self->add_sequence($seq);
     }
 
-    # TODO: parse coverpage element
+    @nodes = $node->findnodes('coverpage/image');
+    foreach my $node (@nodes) {
+        my $map = $node->getAttributes;
+        # find href attribute, a litle bit hackerish
+        my $i = 0;
+        while ($i < $map->getLength) {
+            my $item = $map->item($i);
+            if ($item->getName =~ /:href/i) {
+                my $id = $item->getValue;
+                $id =~ s/^#//;
+                $self->add_cover_image($id);
+            }
+            $i++;
+        }
+    }
 }
 
 sub add_author
@@ -156,6 +180,12 @@ sub add_sequence
 {
     my ($self, $seq) = @_;
     push @{$self->sequnces()}, $seq;
+}
+
+sub add_cover_image
+{
+    my ($self, $id) = @_;
+    push @{$self->cover_images()}, $id;
 }
 
 1;
