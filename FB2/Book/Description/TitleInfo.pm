@@ -72,13 +72,13 @@ has sequences => (
     }
 );
 
-has cover_images => (
+has coverpages => (
     traits  => ['Array'],
     isa     => 'ArrayRef[Object]',
     is      => 'rw',
     default => sub { [] },
     handles => {
-       all_images   => 'elements' 
+       all_coverpages   => 'elements' 
     }
 );
 
@@ -88,55 +88,55 @@ sub load
 
     my @nodes = $node->findnodes('book-title');
     if (@nodes) {
-        $self->book_title($nodes[0]->string_value());
+        $self->book_title($nodes[0]->string_value);
     }
 
     @nodes = $node->findnodes('keywords');
     if (@nodes) {
-        $self->keywords($nodes[0]->string_value());
+        $self->keywords($nodes[0]->string_value);
     }
 
     @nodes = $node->findnodes('lang');
     if (@nodes) {
-        $self->lang($nodes[0]->string_value());
+        $self->lang($nodes[0]->string_value);
     }
 
     @nodes = $node->findnodes('src_lang');
     if (@nodes) {
-        $self->src_lang($nodes[0]->string_value());
+        $self->src_lang($nodes[0]->string_value);
     }
 
     @nodes = $node->findnodes('date');
     if (@nodes) {
         # TODO: parse node to ::Data object
-        $self->date($nodes[0]->string_value());
+        $self->date($nodes[0]->string_value);
     }
 
     # Now handle multiple entities
     @nodes = $node->findnodes('author');
     foreach my $node (@nodes) {
-        my $author = FB2::Book::Description::Author->new();
+        my $author = FB2::Book::Description::Author->new;
         $author->load($node);
         $self->add_author($author);
     }
 
     @nodes = $node->findnodes('translator');
     foreach my $node (@nodes) {
-        my $translator = FB2::Book::Description::Author->new();
+        my $translator = FB2::Book::Description::Author->new;
         $translator->load($node);
         $self->add_translator($translator);
     }
 
     @nodes = $node->findnodes('genre');
     foreach my $node (@nodes) {
-        my $genre = FB2::Book::Description::Genre->new();
+        my $genre = FB2::Book::Description::Genre->new;
         $genre->load($node);
         $self->add_genre($genre);
     }
 
     @nodes = $node->findnodes('sequence');
     foreach my $node (@nodes) {
-        my $seq = FB2::Book::Description::Sequence->new();
+        my $seq = FB2::Book::Description::Sequence->new;
         $seq->load($node);
         $self->add_sequence($seq);
     }
@@ -151,7 +151,7 @@ sub load
             if ($item->getName =~ /:href/i) {
                 my $id = $item->getValue;
                 $id =~ s/^#//;
-                $self->add_cover_image($id);
+                $self->add_coverpage($id);
             }
             $i++;
         }
@@ -161,31 +161,31 @@ sub load
 sub add_author
 {
     my ($self, $author) = @_;
-    push @{$self->authors()}, $author;
+    push @{$self->authors}, $author;
 }
 
 sub add_translator
 {
     my ($self, $translator) = @_;
-    push @{$self->translators()}, $translator;
+    push @{$self->translators}, $translator;
 }
 
 sub add_genre
 {
     my ($self, $genre) = @_;
-    push @{$self->genres()}, $genre;
+    push @{$self->genres}, $genre;
 }
 
 sub add_sequence
 {
     my ($self, $seq) = @_;
-    push @{$self->sequnces()}, $seq;
+    push @{$self->sequnces}, $seq;
 }
 
-sub add_cover_image
+sub add_coverpage
 {
     my ($self, $id) = @_;
-    push @{$self->cover_images()}, $id;
+    push @{$self->coverpages}, $id;
 }
 
 1;
