@@ -36,6 +36,7 @@ has 'title_info' =>  (
         translators => 'all_translators',
         genres      => 'all_genres',
         lang        => 'lang',
+        coverpages  => 'all_coverpages',
     },
 );
 

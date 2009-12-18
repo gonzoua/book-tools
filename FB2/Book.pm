@@ -38,7 +38,8 @@ has description => (
     handles => {
         title   => 'book_title',
         lang    => 'lang',
-        authors => 'authors'
+        authors => 'authors',
+        coverpages => 'coverpages',
     },
 );
 
