@@ -29,7 +29,7 @@ use FB2::Book::Body::Section;
 has name => ( isa => 'Str', is => 'rw' );
 has title => ( isa => 'Ref', is => 'rw' );
 has epigraph => ( isa => 'Ref', is => 'rw' );
-has image => ( isa => 'Ref', is => 'rw' );
+has image => ( isa => 'Str', is => 'rw' );
 has sections => ( 
     isa     => 'ArrayRef',
     is      => 'ro',
@@ -54,7 +54,23 @@ sub load
         $self->epigraph($nodes[0]);
     }
 
-    # TODO: add image support
+    @nodes = $node->findnodes("image");
+    if (@nodes) {
+        my $map = $nodes[0]->getAttributes;
+        # find href attribute, a litle bit hackerish
+        my $i = 0;
+        while ($i < $map->getLength) {
+            my $item = $map->item($i);
+            if ($item->getName =~ /:href/i) {
+                my $id = $item->getValue;
+                $id =~ s/^#//;
+                $self->image($id);
+                last;
+            }
+            $i++;
+        }
+    }
+
     @nodes = $node->findnodes("section");
     foreach my $n (@nodes) {
         my $s = FB2::Book::Body::Section->new();
