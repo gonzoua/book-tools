@@ -24,12 +24,18 @@
 
 package FB2::Book::Body::Section;
 use Moose;
+use XML::DOM;
 
 has id => ( isa => 'Str', is => 'rw' );
 has title => ( isa => 'Ref', is => 'rw' );
-has epigraph => ( isa => 'Ref', is => 'rw' );
 has image => ( isa => 'Ref', is => 'rw' );
 has data => ( isa => 'Ref', is => 'rw' );
+has epigraphs => ( 
+    isa     => 'ArrayRef',
+    is      => 'rw',
+    default => sub { [] },
+);
+
 has subsections => ( 
     isa     => 'ArrayRef',
     is      => 'ro',
@@ -40,7 +46,7 @@ sub load
 {
     my ($self, $node) = @_;
 
-    my $anode = $node->getAttribute("name");
+    my $anode = $node->getAttribute("id");
     if (defined($anode)) {
         $self->id($anode);
     }
@@ -48,11 +54,19 @@ sub load
     my @nodes = $node->findnodes("title");
     if (@nodes) {
         $self->title($nodes[0]);
+        # separate title and main body
+        foreach my $kid (@nodes) {
+            $node->removeChild($kid);
+        }
     }
 
     @nodes = $node->findnodes("epigraph");
     if (@nodes) {
-        $self->epigraph($nodes[0]);
+        # separate epigraphs and main body
+        push @{$self->epigraphs}, @nodes;
+        foreach my $kid (@nodes) {
+            $node->removeChild($kid);
+        }
     }
 
     @nodes = $node->findnodes("section");
@@ -66,5 +80,42 @@ sub load
     # store raw XML::DOM::Node for collecting ids.
     $self->data($node);
 }
+
+#
+# Extract plain text without formatting from XML::DOM node
+#
+sub extract_text
+{
+    my $node = shift;
+    my $text;
+
+    return $node->getData if ($node->getNodeType() == TEXT_NODE);
+
+    # get text from children
+    foreach my $kid ($node->getChildNodes) {
+        $text .= extract_text($kid);
+    }
+
+    return $text;
+}
+
+sub plaintext_title
+{
+    my $self = shift;
+    my $title = $self->title;
+    my $section_title;
+    if (defined($title)) {
+        $section_title = extract_text($title);
+        $section_title =~ s/\r?\n/ /g;
+        # Cleanup extra-spaces
+        while ($section_title =~ s/\s{2}/ /g) {
+        }
+        $section_title =~ s/^\s+//g;
+        $section_title =~ s/\s+$//g;
+    }
+
+    return $section_title;
+}
+
 
 1;
