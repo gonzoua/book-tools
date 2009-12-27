@@ -26,6 +26,7 @@ package FB2::Book::Description::TitleInfo;
 use Moose;
 use FB2::Book::Description::Author;
 use FB2::Book::Description::Genre;
+use FB2::Book::Description::Sequence;
 
 has [qw/book_title keywords date lang src_lang/] => (
     isa     => 'Str',
@@ -179,7 +180,7 @@ sub add_genre
 sub add_sequence
 {
     my ($self, $seq) = @_;
-    push @{$self->sequnces}, $seq;
+    push @{$self->sequences}, $seq;
 }
 
 sub add_coverpage
