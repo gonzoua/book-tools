@@ -28,7 +28,11 @@ use FB2::Book::Body::Section;
 
 has name => ( isa => 'Str', is => 'rw' );
 has title => ( isa => 'Ref', is => 'rw' );
-has epigraph => ( isa => 'Ref', is => 'rw' );
+has epigraphs => ( 
+    isa     => 'ArrayRef',
+    is => 'ro',
+    default => sub { [] },
+);
 has image => ( isa => 'Str', is => 'rw' );
 has sections => ( 
     isa     => 'ArrayRef',
@@ -51,7 +55,7 @@ sub load
     }
     @nodes = $node->findnodes("epigraph");
     if (@nodes) {
-        $self->epigraph($nodes[0]);
+        push @{$self->epigraphs}, @nodes;
     }
 
     @nodes = $node->findnodes("image");
