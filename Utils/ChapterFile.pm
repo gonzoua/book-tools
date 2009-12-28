@@ -34,11 +34,69 @@ has path => (
     required    => 1,
 );
 
+has opened => (
+    isa         => 'Bool',
+    is          => 'rw',
+);
+
+has writer => (
+    isa         => 'Ref',
+    is          => 'rw',
+);
+
+has output => (
+    isa         => 'Ref',
+    is          => 'rw',
+);
+
+has style => (
+    isa         => 'Str',
+    is          => 'rw',
+    default     => 'style.css',
+);
+
 sub filename
 {
     my $self = shift;
     my ($basename, undef, undef) = fileparse($self->path);
     return $basename;
+}
+
+sub open
+{
+    my $self = shift;
+
+    my $output = new IO::File(">" . $self->path);
+    binmode($output, ':utf8');
+    my $writer = new XML::Writer(OUTPUT => $output);
+    $self->output($output);
+    $self->writer($writer);
+    $self->write_xhtml_prologue;
+    $self->opened(1);
+}
+
+sub close
+{
+    my $self = shift;
+    $self->writer->end;
+    $self->output->close;
+    $self->opened(0);
+}
+
+# Helper routine
+sub write_xhtml_prologue
+{
+    my $self = shift;
+    $self->writer->xmlDecl("UTF-8");
+    $self->writer->startTag("html", "xmlns" => "http://www.w3.org/1999/xhtml");
+    $self->writer->startTag("head");
+    $self->writer->emptyTag("title");
+    $self->writer->emptyTag("link",
+        rel     => "stylesheet",
+        href    => $self->style,
+        type    => "text/css",
+    );
+    $writer->endTag("head");
 }
 
 # Finalize class
