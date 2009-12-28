@@ -26,13 +26,104 @@
     src: url(CharisSILBI.ttf)
 }
 
+body.cover {
+    margin: 0px;
+    padding: 0px;
+    oeb-column-number: 1;
+}
+
 body {
     margin-right: 8pt;
     font-family: Charis;
 }
 
+div.epigraph {
+    font-style: italic;
+    margin: 1em 1em 2em 30%;
+    text-align: left;
+}
+
+a {
+    vertical-align: super;
+    line-height: 0.1;
+    font-size: 0.7em;
+}
+
 p.p {
-        margin: 0px;
-        text-indent: 1.5em;
-        text-align: justify;
+    margin: 0px;
+    text-indent: 1.5em;
+    text-align: justify;
+}
+
+p.empty-line {
+    height: 1em;
+    margin: 0px;
+    border: 1px;
+}
+
+div.poem {
+    margin: 0.5em 0px 0.5em 2em;
+}
+
+div.stanza {
+    page-break-inside: avoid;
+    margin: 0.5em 0px;
+}
+
+p.v {
+    padding-left: 1em;
+    text-indent: -1em;
+    margin: 0px;
+}
+
+p.title-p {
+    margin: 0px 0px 0.5em 0px;
+}
+
+.title1 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    font-size: 1.8em;
+    text-align: center;
+    margin: 1em 0px 0.5em 0px;
+}
+
+.title2 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    font-size: 1.5em;
+    margin: 1em 0px 0.5em 1.5625em;
+}
+
+.title3 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 1em 0px 0.5em 1.923em;
+}
+
+.title4 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 1em 0px 0.5em 2.083em;
+}
+
+.title5 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 1em 0px 0.5em 2.272em;
+}
+
+.title6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    font-weight: bold;
+    margin: 1em 0px 0.5em 2.5em;
 }
