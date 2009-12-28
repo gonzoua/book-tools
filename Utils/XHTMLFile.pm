@@ -22,7 +22,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-package Utils::ChapterFile;
+package Utils::XHTMLFile;
 
 use Moose;
 use XML::Writer;
@@ -78,6 +78,7 @@ sub open
 sub close
 {
     my $self = shift;
+    $self->writer->endTag('html');
     $self->writer->end;
     $self->output->close;
     $self->opened(0);
@@ -96,7 +97,7 @@ sub write_xhtml_prologue
         href    => $self->style,
         type    => "text/css",
     );
-    $writer->endTag("head");
+    $self->writer->endTag("head");
 }
 
 # Finalize class

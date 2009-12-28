@@ -25,7 +25,7 @@
 package Utils::ChapterManager;
 
 use Moose;
-use Utils::ChapterFile;
+use Utils::XHTMLFile;
 use File::Basename;
 
 has file_id => (
@@ -64,7 +64,7 @@ sub BUILD
     my $name = sprintf("page%04d.xhtml", $ch);
     # XXX: Unix-only
     $name = $self->tmp_dir . "/" . $name;
-    my $chfile = Utils::ChapterFile->new(path => $name);
+    my $chfile = Utils::XHTMLFile->new(path => $name);
     $self->current_chapter_file($chfile);
 }
 
@@ -79,7 +79,7 @@ sub next_file
     my $name = sprintf("page%04d.xhtml", $ch);
     # XXX: Unix-only
     $name = $self->tmp_dir . "/" . $name;
-    my $chfile = Utils::ChapterFile->new(path => $name);
+    my $chfile = Utils::XHTMLFile->new(path => $name);
     $self->current_chapter_file($chfile);
 }
 
