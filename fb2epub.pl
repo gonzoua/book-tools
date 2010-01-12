@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Copyright (C) 2009 by Oleksandr Tymoshenko. All rights reserved.
+# Copyright (C) 2009, 2010 by Oleksandr Tymoshenko. All rights reserved.
 
 use strict;
 
