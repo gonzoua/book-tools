@@ -22,6 +22,7 @@ my %img_ids_map;
 my %filename_map;
 
 my $fb2book = "example.fb2";
+# my $fb2book = "book.epub";
 my $epubbook = "book.epub";
 my $has_notes;
 
@@ -38,14 +39,14 @@ my $package = EPUB::Package->new();
 #
 # Set author/title/ID/language
 #
-$package->set_title($fb2->title);
+$package->add_title($fb2->title);
 my @authors = $fb2->authors();
 foreach my $a (@authors) {
     $package->add_author($a->to_str());
 }
 $package->add_language($fb2->lang());
 # XXX: FixMe
-$package->set_identifier('1234');
+$package->add_identifier('1234');
 
 # Add all images to EPUB package
 my @binaries = $fb2->all_binaries();
