@@ -27,6 +27,7 @@ package FB2::Book;
 use Moose;
 use XML::DOM;
 use XML::DOM::XPath;
+use Carp;
 
 use FB2::Book::Description;
 use FB2::Book::Binary;
@@ -67,11 +68,20 @@ sub load
 {
     my ($self, $file) = @_;
     my $parser = XML::DOM::Parser->new();
-    my $xp = $parser->parsefile($file);
+    my $xp;
+    eval {
+        $xp = $parser->parsefile($file);
+    };
+
+    if ($@) {
+        carp("Failed to parse $file");
+        return;
+    }
 
     my @nodes = $xp->findnodes('/FictionBook/description'); 
     if (@nodes != 1) {
-        warn "Wrong number of <description> element";
+        my $descriptions = @nodes;
+        croak "There should be only one <description> element";
         return;
     }
 
