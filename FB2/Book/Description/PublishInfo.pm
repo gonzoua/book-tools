@@ -25,7 +25,7 @@
 package FB2::Book::Description::PublishInfo;
 use Moose;
 
-has [qw/book-name publisher city year isbn/] => (isa => 'Str', is => 'rw');
+has [qw/book_name publisher city year isbn/] => (isa => 'Str', is => 'rw');
 has sequences => (isa => 'ArrayRef', is => 'ro', default => sub { [] });
 
 sub load
