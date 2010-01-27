@@ -2,15 +2,17 @@
 # Copyright (C) 2009, 2010 by Oleksandr Tymoshenko. All rights reserved.
 
 use strict;
+use lib qw@ /Users/gonzo/Projects/EBook-FB2/blib/lib /Users/gonzo/Projects/EBook-EPUB/blib/lib /Users/gonzo/Projects/book-tools @;
 
-use EPUB::Package;
-use FB2::Book;
+use EBook::EPUB;
+use EBook::FB2;
 use XML::Writer;
 use XML::DOM;
 use File::Temp qw/tempdir/;
 
 use Utils::XHTMLFile;
 use Utils::ChapterManager;
+
 
 my $verbose = 0;
 
@@ -21,12 +23,12 @@ my %img_ids_map;
 # maps section/body to respecive filename
 my %filename_map;
 
-my $fb2book = "example.fb2";
+my $fb2book = "/Users/gonzo/Projects/book-tools/book3.fb2";
 # my $fb2book = "book.epub";
-my $epubbook = "book.epub";
+my $epubbook = "/Users/gonzo/Projects/book-tools/book.epub";
 my $has_notes;
 
-my $fb2 = FB2::Book->new();
+my $fb2 = EBook::FB2->new();
 die "Failed to load $fb2book" unless ($fb2->load($fb2book));
 
 # Create helper objects
@@ -34,22 +36,22 @@ my $tmp_dir = tempdir( CLEANUP => 1 );
 my $chapter_manager = Utils::ChapterManager->new(tmp_dir => $tmp_dir);
 
 # Create EPUB parts: package/container
-my $package = EPUB::Package->new();
+my $package = EBook::EPUB->new();
 
 #
 # Set author/title/ID/language
 #
-$package->add_title($fb2->title);
-my @authors = $fb2->authors();
+$package->add_title($fb2->description->book_title);
+my @authors = $fb2->description->authors();
 foreach my $a (@authors) {
     $package->add_author($a->to_str());
 }
-$package->add_language($fb2->lang());
+$package->add_language($fb2->description->lang());
 # XXX: FixMe
 $package->add_identifier('1234');
 
 # Add all images to EPUB package
-my @binaries = $fb2->all_binaries();
+my @binaries = $fb2->binaries();
 my $img_c = 0;
 foreach my $b (@binaries) {
     my $ctype = $b->content_type();
@@ -73,11 +75,11 @@ foreach my $b (@binaries) {
     $img_ids_map{$b->id()} = $img_name;
 }
 
-my @bodies = $fb2->all_bodies();
+my @bodies = $fb2->bodies();
 my $play_order = 1;
 
 # Create pages with cover images
-foreach my $img_id ($fb2->coverpages) {
+foreach my $img_id ($fb2->description->coverpages) {
     my $xhtml_file = $chapter_manager->current_chapter_file;
     $xhtml_file->open;
     my $writer = $xhtml_file->writer;
@@ -99,8 +101,7 @@ foreach my $body (@bodies) {
     $filename_map{$body} = $chapter_manager->current_chapter_file;
     $chapter_manager->next_file;
 
-    my @sections = @{$body->sections};
-    foreach my $section (@sections) {
+    foreach my $section ($body->sections) {
         build_chapters_map($section);
     }
 }
@@ -111,8 +112,7 @@ foreach my $body (@bodies) {
     my $name = lc($body->name());
     next if ($name eq 'notes');
 
-    my @sections = @{$body->sections};
-    foreach my $section (@sections) {
+    foreach my $section ($body->sections) {
         build_ids_map($section);
     }
 }
@@ -123,8 +123,7 @@ foreach my $body (@bodies) {
     next if (!defined($name) || ($name ne 'notes'));
 
     $has_notes = 1;
-    my @sections = @{$body->sections};
-    foreach my $section (@sections) {
+    foreach my $section ($body->sections) {
         map_all_ids($section, 'notes.xhtml');
     }
 }
@@ -143,8 +142,7 @@ foreach my $body (@bodies) {
     write_body_cover_xhtml($body, $writer);
     $xhtml_file->close;
 
-    my @sections = @{$body->sections};
-    foreach my $section (@sections) {
+    foreach my $section ($body->sections) {
         transform_sections($section, \&write_section_file, 1);
     }
 }
@@ -159,8 +157,7 @@ if ($has_notes) {
         my $name = lc($body->name());
         next unless($name eq 'notes');
 
-        my @sections = @{$body->sections};
-        foreach my $section (@sections) {
+        foreach my $section ($body->sections) {
             write_section($section, $writer);
         }
     }
@@ -172,9 +169,8 @@ if ($has_notes) {
 foreach my $body (@bodies) {
     my $name = $body->name();
     next if (defined($name) && ($name eq 'notes'));
-    my @sections = @{$body->sections};
 
-    foreach my $section (@sections) {
+    foreach my $section ($body->sections) {
         my $chapter_file = $filename_map{$section};
         my $filename = $chapter_file->filename;
 
@@ -258,7 +254,7 @@ sub write_body_cover_xhtml
         $writer->endTag('div', class => "title1");
     }
 
-    foreach my $e (@{$body->epigraphs}) {
+    foreach my $e ($body->epigraphs) {
         to_xhtml($e, $writer);
     }
 
@@ -284,10 +280,8 @@ sub transform_sections
 
     $transform_sub->($section, $level);
 
-    if (@{$section->subsections}) {
-        foreach my $s (@{$section->subsections}) {
-            transform_sections($s, $transform_sub, $level + 1);
-        }
+    foreach my $s ($section->subsections) {
+        transform_sections($s, $transform_sub, $level + 1);
     }
 }
 
@@ -318,12 +312,12 @@ sub write_section
     }
 
     # write epigraphs
-    foreach my $e (@{$section->epigraphs}) {
+    foreach my $e ($section->epigraphs) {
         to_xhtml($e, $writer);
     }
 
     # if there are no subsections, just convert content to xhtml
-    if (@{$section->subsections} == 0) {
+    if (!$section->subsections) {
         to_xhtml($section->data(), $writer);
     }
 
@@ -518,8 +512,8 @@ sub build_ids_map
     $ids_map{$id} = $filename if ($id ne '');
 
     # do the same for children
-    if (@{$section->subsections}) {
-        foreach my $s (@{$section->subsections}) {
+    if ($section->subsections) {
+        foreach my $s ($section->subsections) {
             build_ids_map($s);
         }
     }
@@ -542,8 +536,8 @@ sub map_all_ids
     $ids_map{$id} = $filename if ($id ne '');
 
     # do the same for children
-    if (@{$section->subsections}) {
-        foreach my $s (@{$section->subsections}) {
+    if ($section->subsections) {
+        foreach my $s ($section->subsections) {
             map_all_ids($s, $filename);
         }
     }
@@ -582,8 +576,8 @@ sub build_chapters_map
         $chapter_manager->next_section;
     }
 
-    if (@{$section->subsections}) {
-        foreach my $s (@{$section->subsections}) {
+    if ($section->subsections) {
+        foreach my $s ($section->subsections) {
             build_chapters_map($s);
         }
     }
@@ -597,7 +591,7 @@ sub add_subsection_navigation
 {
     my ($section, $section_navpoint, $level) = @_;
 
-    foreach my $s (@{$section->subsections}) {
+    foreach my $s ($section->subsections) {
         my $chapter_file = $filename_map{$s};
         my $filename = $chapter_file->filename;
 
