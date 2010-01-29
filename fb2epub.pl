@@ -2,7 +2,7 @@
 # Copyright (C) 2009, 2010 by Oleksandr Tymoshenko. All rights reserved.
 
 use strict;
-use lib qw@ /Users/gonzo/Projects/EBook-FB2/blib/lib /Users/gonzo/Projects/EBook-EPUB/blib/lib /Users/gonzo/Projects/book-tools @;
+# use lib qw@ /Users/gonzo/Projects/EBook-FB2/blib/lib /Users/gonzo/Projects/EBook-EPUB/blib/lib /Users/gonzo/Projects/book-tools @;
 
 use EBook::EPUB;
 use EBook::FB2;
@@ -23,9 +23,13 @@ my %img_ids_map;
 # maps section/body to respecive filename
 my %filename_map;
 
-my $fb2book = "/Users/gonzo/Projects/book-tools/book3.fb2";
-# my $fb2book = "book.epub";
-my $epubbook = "/Users/gonzo/Projects/book-tools/book.epub";
+if (@ARGV != 2) {
+    print "Usage: fb2epub.pl book.fb2 book.epub\n";
+    exit (0);
+}
+
+my $fb2book = $ARGV[0];
+my $epubbook = $ARGV[1];
 my $has_notes;
 
 my $fb2 = EBook::FB2->new();
@@ -207,9 +211,11 @@ foreach my $chapter (@{$chapter_manager->chapter_files}) {
 }
 
 # Add notes file
-$package->copy_xhtml("$tmp_dir/notes.xhtml", "notes.xhtml",
-    linear => 'no'
-);
+if ($has_notes) {
+    $package->copy_xhtml("$tmp_dir/notes.xhtml", "notes.xhtml",
+        linear => 'no'
+    );
+}
 
 $package->pack_zip($epubbook);
 
