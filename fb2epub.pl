@@ -12,7 +12,7 @@ use File::Temp qw/tempdir/;
 
 use Utils::XHTMLFile;
 use Utils::ChapterManager;
-
+use Data::UUID;
 
 my $verbose = 0;
 
@@ -51,8 +51,9 @@ foreach my $a (@authors) {
     $package->add_author($a->to_str());
 }
 $package->add_language($fb2->description->lang());
-# XXX: FixMe
-$package->add_identifier('1234');
+my $ug = new Data::UUID;
+my $uuid = $ug->create_from_name_str(NameSpace_URL, "fb2epub.com");
+$package->add_identifier("urn:uuid:$uuid");
 
 # Add all images to EPUB package
 my @binaries = $fb2->binaries();
@@ -187,18 +188,23 @@ foreach my $body (@bodies) {
                 content     => "$filename#" . $section->id,
                 play_order  => $play_order,
             );
-            add_subsection_navigation($section, $nav_point);
             $play_order++;
+            add_subsection_navigation($section, $nav_point);
         }
     }
 }
 
 # Add CSS and fonts
 $package->copy_stylesheet("style.css", "style.css");
-$package->copy_file("fonts/CharisSILB.ttf", "CharisSILB.ttf", "application/x-font-ttf");
-$package->copy_file("fonts/CharisSILBI.ttf", "CharisSILBI.ttf", "application/x-font-ttf");
-$package->copy_file("fonts/CharisSILI.ttf", "CharisSILI.ttf", "application/x-font-ttf");
-$package->copy_file("fonts/CharisSILR.ttf", "CharisSILR.ttf", "application/x-font-ttf");
+
+$package->encrypt_file("fonts/CharisSILB.ttf", "CharisSILB.ttf", 
+    "application/octet-stream");
+$package->encrypt_file("fonts/CharisSILBI.ttf", "CharisSILBI.ttf", 
+    "application/octet-stream");
+$package->encrypt_file("fonts/CharisSILI.ttf", "CharisSILI.ttf", 
+    "application/octet-stream");
+$package->encrypt_file("fonts/CharisSILR.ttf", "CharisSILR.ttf", 
+    "application/octet-stream");
 
 # add book content
 foreach my $chapter (@{$chapter_manager->chapter_files}) {
