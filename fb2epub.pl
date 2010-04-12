@@ -43,7 +43,6 @@ if ( $fb2zip->read( $fb2book ) == AZ_OK ) {
     die "fb2.zip should contain one and only one fb2 file" if (@members != 1);
     my $tmpdir = File::Spec->tmpdir();
     my $tmp_fb2 = mktemp( "$tmpdir/fb2XXXXX" );    
-    print ">> $tmp_fb2\n";
     if ($fb2zip->extractMember($members[0], $tmp_fb2) != AZ_OK) {
         die "Failed to extract fb2 from zip archive";
     }
