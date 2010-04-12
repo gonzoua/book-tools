@@ -8,7 +8,9 @@ use EBook::EPUB;
 use EBook::FB2;
 use XML::Writer;
 use XML::DOM;
-use File::Temp qw/tempdir/;
+use Archive::Zip qw/:ERROR_CODES :CONSTANTS/;
+use File::Temp qw/tempdir mktemp/;
+use File::Spec;
 
 use Utils::XHTMLFile;
 use Utils::ChapterManager;
@@ -33,7 +35,30 @@ my $epubbook = $ARGV[1];
 my $has_notes;
 
 my $fb2 = EBook::FB2->new();
-die "Failed to load $fb2book" unless ($fb2->load($fb2book));
+
+# Let's check if fb2 is zip-compressed
+my $fb2zip = Archive::Zip->new();
+if ( $fb2zip->read( $fb2book ) == AZ_OK ) {
+    my @members = $fb2zip->membersMatching( '.*\.fb2' );
+    die "fb2.zip should contain one and only one fb2 file" if (@members != 1);
+    my $tmpdir = File::Spec->tmpdir();
+    my $tmp_fb2 = mktemp( "$tmpdir/fb2XXXXX" );    
+    print ">> $tmp_fb2\n";
+    if ($fb2zip->extractMember($members[0], $tmp_fb2) != AZ_OK) {
+        die "Failed to extract fb2 from zip archive";
+    }
+
+    if (!$fb2->load($tmp_fb2)) {
+        unlink $tmp_fb2;
+        die "Failed to load $fb2book";
+    }
+
+    # Remove tmp fB2 anyway
+    unlink $tmp_fb2;
+}
+else {
+    die "Failed to load $fb2book" unless ($fb2->load($fb2book));
+}
 
 # Create helper objects
 my $tmp_dir = tempdir( CLEANUP => 1 );
