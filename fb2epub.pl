@@ -29,15 +29,13 @@ use Data::UUID;
 use Font::Subsetter;
 use Converter;
 
-if (@ARGV < 2) {
+if ((@ARGV < 2) || (@ARGV > 3)) {
     print "Usage: fb2epub.pl book.fb2 book.epub [fontfamily]\n";
     exit (0);
 }
 
 my $fb2book = $ARGV[0];
 my $epubbook = $ARGV[1];
-my $font_family = $ARGV[2] if (@ARGV == 3);
-
+my $font_family = $ARGV[2] if (@ARGV > 2);
 my $c = Converter->new(encrypt_fonts => 0);
 my ($code, $msg) = $c->convert($fb2book, $epubbook, $font_family);
-
