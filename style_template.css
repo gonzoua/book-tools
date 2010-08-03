@@ -1,31 +1,3 @@
-@font-face {
-    font-family: "Charis";
-    font-style: normal;
-    font-weight: normal;
-    src: url(CharisSILR.ttf)
-}
-
-@font-face {
-    font-family: "Charis";
-    font-style: normal;
-    font-weight: bold;
-    src: url(CharisSILB.ttf)
-}
-
-@font-face {
-    font-family: "Charis";
-    font-style: italic;
-    font-weight: normal;
-    src: url(CharisSILI.ttf)
-}
-
-@font-face {
-    font-family: "Charis";
-    font-style: italic;
-    font-weight: bold;
-    src: url(CharisSILBI.ttf)
-}
-
 body.cover {
     margin: 0px;
     padding: 0px;
@@ -34,7 +6,7 @@ body.cover {
 
 body {
     margin-right: 8pt;
-    font-family: Charis;
+    %%FONT_FAMILY%%
 }
 
 div.epigraph {
@@ -72,7 +44,6 @@ div.stanza {
 
 p.v {
     padding-left: 1em;
-    text-indent: -1em;
     margin: 0px;
 }
 
