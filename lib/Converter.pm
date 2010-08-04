@@ -61,7 +61,13 @@ sub convert
 
     # Let's check if fb2 is zip-compressed
     my $fb2zip = Archive::Zip->new();
-    if ( $fb2zip->read( $fb2book ) == AZ_OK ) {
+    my $zip_status;
+    Archive::Zip::setErrorHandler( sub { } );
+    
+    eval {
+	$zip_status = $fb2zip->read ( $fb2book );
+    };
+    if ( $zip_status == AZ_OK ) {
         my @members = $fb2zip->membersMatching( '.*\.fb2' );
         return ('FAIL', 'zip archive contains more then 1 fb2 file') if (@members > 1);
         return ('FAIL', 'no fb2 file in zip archive') if (@members < 1);
