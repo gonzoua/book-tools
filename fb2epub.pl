@@ -13,6 +13,7 @@ use File::Temp qw/tempdir :mktemp/;
 use File::Spec;
 use List::MoreUtils qw(uniq);
 use Cwd;
+use Getopt::Std;
 
 BEGIN {
     use FindBin;
@@ -31,13 +32,30 @@ use Data::UUID;
 use Font::Subsetter;
 use Converter;
 
-if ((@ARGV < 2) || (@ARGV > 3)) {
-    print "Usage: fb2epub.pl book.fb2 book.epub [fontfamily]\n";
+my %opts;
+getopts('ef:l', \%opts); 
+
+if ($opts{'l'}) {
+	my @fonts = Utils::Fonts::valid_fonts();
+	print "Fonts:\n";
+	foreach my $f (@fonts) {
+		$f =~ s/([\^ ])(\w)/\1\U\2/g;
+		print "  " . ucfirst($f) . "\n";
+	}
+	exit (0);
+}
+
+if (@ARGV  != 2) {
+    print "Usage: \n";
+    print "    List fonts: fb2epub.pl -l\n";
+    print "    Convert: fb2epub.pl [-e -f font] book.fb2 book.epub\n";
+    print "        -e\t\tencrypt embedded fonts\n";
+    print "        -f font\t\tembed specified font\n";
     exit (0);
 }
 
 my $fb2book = $ARGV[0];
 my $epubbook = $ARGV[1];
-my $font_family = $ARGV[2] if (@ARGV > 2);
-my $c = Converter->new(encrypt_fonts => 0);
+my $font_family = $opts{'f'};
+my $c = Converter->new(encrypt_fonts => $opts{'e'});
 my ($code, $msg) = $c->convert($fb2book, $epubbook, $font_family);
