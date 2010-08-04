@@ -512,8 +512,6 @@ sub to_anchor
         if (defined($file)) {
             push @args, "href", "$file#$href";
         }
-
-        print "$href -> $file#$href\n";
     }
 
 
@@ -554,8 +552,6 @@ sub to_img
         if (defined($file)) {
             push @args, "src", "$file";
         }
-
-        print "[img] $href -> $id/$file\n";
     }
 
     $writer->startTag('center');
@@ -622,7 +618,7 @@ sub to_xhtml
     }
     else
     {
-        print "Unknown: $type!\n"
+        warn "Unknown: $type!\n"
     }
 }
 
