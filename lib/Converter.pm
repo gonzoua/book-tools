@@ -284,11 +284,12 @@ sub convert
             my $output_file = "$fonts_temp/$font";
             my $subsetter = new Font::Subsetter();
 
-            $subsetter->subset($input_file, $chars, {
-            });
-
-            $subsetter->write($output_file);
-
+	    eval {
+		# Suppress warnings from Font::Subsetter
+		local $SIG{'__WARN__'} = sub {  }; 
+		$subsetter->subset($input_file, $chars, { });
+                $subsetter->write($output_file);
+	    };
 
             if ($self->{encrypt_fonts}) {
                 $package->encrypt_file($output_file, $font, 
