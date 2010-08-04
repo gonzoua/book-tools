@@ -32,6 +32,7 @@ sub new
         symbols => [],
         play_order => 1,
         encrypt_fonts => 1,
+        fail_reason => '',
         chapter_manager => Utils::ChapterManager->new(tmp_dir => $tmp_dir),
         tmp_dir => $tmp_dir,
     };
@@ -65,27 +66,38 @@ sub convert
     Archive::Zip::setErrorHandler( sub { } );
     
     eval {
-	$zip_status = $fb2zip->read ( $fb2book );
+        $zip_status = $fb2zip->read ( $fb2book );
     };
     if ( $zip_status == AZ_OK ) {
         my @members = $fb2zip->membersMatching( '.*\.fb2' );
-        return ('FAIL', 'zip archive contains more then 1 fb2 file') if (@members > 1);
-        return ('FAIL', 'no fb2 file in zip archive') if (@members < 1);
+        if (@members > 1) {
+            $self->{'fail_reason'} = 'zip archive contains more then 1 fb2 file';
+            return;
+        }
+        if (@members < 1) {
+            $self->{'fail_reason'} = 'no fb2 file in zip archive';
+            return;
+        }
         my $tmp_fb2 = mktemp( "$tmpdir/fb2XXXXX" );    
         if ($fb2zip->extractMember($members[0], $tmp_fb2) != AZ_OK) {
-            return ('FAIL', 'Invalid archive: failed to extract fb2 file');
+            $self->{'fail_reason'} = 'Invalid archive: failed to extract fb2 file';
+            return;
         }
 
         if (!$fb2->load($tmp_fb2)) {
             unlink $tmp_fb2;
-            return ('FAIL', 'Invalid fb2 file');
+            $self->{'fail_reason'} = 'Invalid fb2 file';
+            return;
         }
 
         # Remove tmp fB2 anyway
         unlink $tmp_fb2;
     }
     else {
-        return ('FAIL', 'Invalid fb2 file') unless ($fb2->load($fb2book));
+        if  (!$fb2->load($fb2book)) {
+            $self->{'fail_reason'} = 'Invalid fb2 file';
+            return;
+        }
     }
 
     # Create EPUB parts: package/container
@@ -284,12 +296,12 @@ sub convert
             my $output_file = "$fonts_temp/$font";
             my $subsetter = new Font::Subsetter();
 
-	    eval {
-		# Suppress warnings from Font::Subsetter
-		local $SIG{'__WARN__'} = sub {  }; 
-		$subsetter->subset($input_file, $chars, { });
+            eval {
+                # Suppress warnings from Font::Subsetter
+                local $SIG{'__WARN__'} = sub {  }; 
+                $subsetter->subset($input_file, $chars, { });
                 $subsetter->write($output_file);
-	    };
+            };
 
             if ($self->{encrypt_fonts}) {
                 $package->encrypt_file($output_file, $font, 
@@ -323,7 +335,7 @@ sub convert
     }
 
     $package->pack_zip($epubbook);
-    return ('OK', '-');
+    return 1;
 }
 
 #
@@ -735,6 +747,12 @@ sub add_subsection_navigation
             $self->add_subsection_navigation($s, $nav_point);
         }
     }
+}
+
+sub reason
+{
+    my ($self) = @_;
+    return $self->{fail_reason};
 }
 
 1;

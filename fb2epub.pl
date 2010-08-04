@@ -58,4 +58,11 @@ my $fb2book = $ARGV[0];
 my $epubbook = $ARGV[1];
 my $font_family = $opts{'f'};
 my $c = Converter->new(encrypt_fonts => $opts{'e'});
-my ($code, $msg) = $c->convert($fb2book, $epubbook, $font_family);
+if (!$c->convert($fb2book, $epubbook, $font_family)) {
+    print "$fb2book: failed\n";
+    print "Reason: " . $c->reason() . "\n";
+}
+else {
+    print "$fb2book: converted\n";
+}
+
