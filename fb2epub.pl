@@ -15,7 +15,9 @@ use List::MoreUtils qw(uniq);
 use Cwd;
 
 BEGIN {
-    $ENV{FB2EPUB_ROOT} = Cwd::realpath(File::Spec->rel2abs($FindBin::Bin)) ;
+    use FindBin;
+    my $path = $FindBin::Bin;
+    $ENV{FB2EPUB_ROOT} = Cwd::realpath(File::Spec->rel2abs($path)) ;
 }
 
 use lib  (
