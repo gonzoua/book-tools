@@ -31,7 +31,7 @@ sub new
         has_notes => 0,
         symbols => [],
         play_order => 1,
-        encrypt_fonts => 1,
+        encrypt_fonts => 0,
         fail_reason => '',
         chapter_manager => Utils::ChapterManager->new(tmp_dir => $tmp_dir),
         tmp_dir => $tmp_dir,
@@ -160,7 +160,7 @@ sub convert
         my $orig_id = $cover_ids[0];
         if (defined($self->{img_map}->{$orig_id})) {
             my $img_id = $self->{img_map}->{$orig_id}->{id};
-            $package->add_item('cover', $img_id);
+            $package->add_meta_item('cover', $img_id);
         }
     }
 
@@ -215,7 +215,7 @@ sub convert
 
     # write all files 
     foreach my $body (@bodies) {
-        my $name = $body->name();
+        my $name = lc($body->name());
 
         next if(defined($name) && ($name eq 'notes'));
         
@@ -252,7 +252,7 @@ sub convert
 
     # Create navigation points. Do our best
     foreach my $body (@bodies) {
-        my $name = $body->name();
+        my $name = lc($body->name());
         next if (defined($name) && ($name eq 'notes'));
 
         foreach my $section ($body->sections) {
