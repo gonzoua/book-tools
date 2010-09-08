@@ -65,7 +65,7 @@ sub make_entry
     my ($family, $weight, $style, $file) = @_;
 my $entry = <<__EOCSS__;
 \@font-face {
-    font-family: '$family', serif, sans-serif;
+    font-family: '$family';
     font-style: $style;
     font-weight: $weight;
     src: url($file)
