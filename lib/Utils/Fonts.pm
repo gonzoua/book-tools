@@ -77,24 +77,33 @@ __EOCSS__
 
 sub make_font_description 
 {
-    my ($family) = @_;
+    my ($family, $uniq) = @_;
     return '' unless($fonts->{lc($family)});
     my $css = '';
+    my $uniq_family = $family;
+    $uniq_family = "$uniq-" . $family if(defined($uniq));
     
-    $css .= make_entry($family, 'normal', 'normal', 
-        $fonts->{lc($family)}->{normal}) if ($fonts->{lc($family)}->{normal});
-    $css .= make_entry($family, 'bold', 'normal', 
-        $fonts->{lc($family)}->{bold}) if ($fonts->{lc($family)}->{bold});
-    $css .= make_entry($family, 'normal', 'italic', 
-        $fonts->{lc($family)}->{italic}) if ($fonts->{lc($family)}->{italic});
-    $css .= make_entry($family, 'bold', 'italic', 
-        $fonts->{lc($family)}->{bolditalic}) if ($fonts->{lc($family)}->{bolditalic});
+    my @combinations = ( 
+        # [ weight, style, hash_key ]
+        [ 'normal', 'normal', 'normal' ],
+        [ 'bold', 'normal', 'bold' ],
+        [ 'normal', 'italic', 'italic' ],
+        [ 'bold', 'italic', 'bolditalic' ],
+    );
+    foreach my $e (@combinations) {
+        my $fontfile = $fonts->{lc($family)}->{$e->[2]}; 
+        next if (!defined($fontfile));
+        my $uniq_fontfile = $fontfile;
+        $uniq_fontfile = "$uniq-$fontfile" if(defined($uniq));
+        $css .= make_entry($uniq_family, $e->[0], $e->[1], $uniq_fontfile);
+    }
 
+    return $css;
 }
 
 sub get_font_files
 {
-    my ($family) = @_;
+    my ($family, $uniq) = @_;
     return  unless($fonts->{lc($family)});
     my @result;
     foreach my $key (keys %{$fonts->{lc($family)}}) {

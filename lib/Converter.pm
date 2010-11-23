@@ -280,14 +280,14 @@ sub convert
     my $css = join ('', @lines);
     close F;
     if (defined($font_family) && ($font_family ne '')) {
-        $css =~ s/%%FONT_FAMILY%%/font-family: '$font_family';/g;
+        $css =~ s/%%FONT_FAMILY%%/font-family: '$uuid-$font_family';/g;
     }
     else {
         $css =~ s/%%FONT_FAMILY%%//g;
     }
 
     if (defined($font_family) && ($font_family ne '')) {
-        $css = Utils::Fonts::make_font_description($font_family) . $css;
+        $css = Utils::Fonts::make_font_description($font_family, $uuid) . $css;
         my @fonts = Utils::Fonts::get_font_files($font_family);
         my $fonts_temp = mkdtemp($self->{tmp_dir} . "/fontsXXXX");
         my $chars = join '', @{$self->{symbols}};
@@ -304,11 +304,11 @@ sub convert
             };
 
             if ($self->{encrypt_fonts}) {
-                $package->encrypt_file($output_file, $font, 
+                $package->encrypt_file($output_file, "$uuid-$font", 
                     'application/octet-stream');
             }
             else {
-                $package->copy_file($output_file, $font, 
+                $package->copy_file($output_file, "$uuid-$font", 
                     'application/x-font-ttf');
             }
         }
