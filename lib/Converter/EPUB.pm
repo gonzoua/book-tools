@@ -1,4 +1,4 @@
-package Converter;
+package Converter::EPUB;
 
 use strict;
 use warnings;
